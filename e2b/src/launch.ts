@@ -1,5 +1,4 @@
 import { randomBytes } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { setTimeout as delay } from "node:timers/promises";
 
 import { Sandbox, type CommandHandle } from "e2b";
@@ -23,7 +22,7 @@ import {
   shellQuote,
   validatorArgs,
 } from "./devnet.js";
-import { parseTopology, type ConsensusClient, type NodePair } from "./topology.js";
+import { loadTopology, type ConsensusClient, type NodePair } from "./topology.js";
 
 const template = process.env.E2B_TEMPLATE ?? "ethereum-client-topology";
 const jwtPath = "/home/user/ethereum/jwt.hex";
@@ -196,13 +195,7 @@ function requireSandbox(
 
 async function main(): Promise<void> {
   const options = parseOptions(process.argv.slice(2));
-  const source = options.configPath ? await readFile(options.configPath, "utf8") : undefined;
-  const defaultNetwork = options.network ?? "hoodi";
-  const topology = source
-    ? parseTopology(source, options.network)
-    : parseTopology(
-        `network_params:\n  network: ${defaultNetwork}\nparticipants:\n  - el_type: geth\n    cl_type: lighthouse\n`,
-      );
+  const topology = await loadTopology(options.configPath, options.network);
   const isDevnet = topology.network === "kurtosis";
   const checkpointUrl = resolveCheckpointUrl(topology.network, options.checkpointUrl);
   const launchId = `${Date.now().toString(36)}-${randomBytes(8).toString("hex")}`;

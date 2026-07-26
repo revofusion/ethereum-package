@@ -1,7 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseTopology } from "../src/topology.js";
+import { loadTopology, parseTopology } from "../src/topology.js";
+
+test("loads the bundled private testnet by default", async () => {
+  const topology = await loadTopology();
+
+  assert.equal(topology.network, "kurtosis");
+  assert.equal(topology.sandboxCount, 2);
+  assert.equal(topology.pairs[0]?.clType, "lighthouse");
+  assert.equal(topology.pairs[0]?.validatorCount, 64);
+  assert.equal(topology.devnet?.networkId, "3151908");
+
+  const publicTopology = await loadTopology(undefined, "hoodi");
+  assert.equal(publicTopology.network, "hoodi");
+  assert.equal(publicTopology.pairs[0]?.validatorCount, 0);
+  assert.equal(publicTopology.devnet, undefined);
+});
 
 test("expands ethereum-package participant counts into EL-CL sandbox pairs", () => {
   const topology = parseTopology(`

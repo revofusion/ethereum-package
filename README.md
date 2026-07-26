@@ -67,13 +67,15 @@ Engine API connection.
 cd e2b
 npm install
 npm run template:build
-npm run launch -- --network hoodi --timeout 60
+npm run launch -- --timeout 60
 ```
 
-Set `E2B_API_KEY` before building or launching. Public-network YAML may select
-`mainnet`, `sepolia`, or `hoodi` in `network_params.network`; alternatively pass
-`--network hoodi` to override it. Pass an HTTPS `--checkpoint-url URL` to
-override the network's default community checkpoint endpoint.
+Set `E2B_API_KEY` before building or launching. With no `--config` or
+`--network`, the launcher uses `e2b/testnet.yaml` to create a new private
+testnet; it does not download a public-network checkpoint. To join a public
+network instead, select `mainnet`, `sepolia`, or `hoodi` in
+`network_params.network`, or pass `--network hoodi`. Pass an HTTPS
+`--checkpoint-url URL` to override that public network's community checkpoint.
 
 The native E2B template currently supports Geth execution clients and
 Lighthouse or Prysm consensus clients. `count` has ethereum-package semantics:
@@ -98,12 +100,12 @@ consensus sandboxes can reach port 8551, which remains protected by a random
 per-pair JWT. Geth JSON-RPC and metrics bind to loopback. Consensus HTTP
 endpoints retain E2B traffic-token protection.
 
-The included `e2b/testnet.yaml` launches a private, post-Fulu testnet with one
+The default `e2b/testnet.yaml` launches a private, post-Fulu testnet with one
 Geth, one Lighthouse beacon node, and 64 Lighthouse validators:
 
 ```bash
 cd e2b
-npm run launch -- --config testnet.yaml --timeout 60
+npm run launch -- --timeout 60
 ```
 
 For `network: kurtosis`, the adapter supports `network_id`, `preset`,

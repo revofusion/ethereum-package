@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { parse } from "yaml";
 
 import { networks, type Network } from "./config.js";
@@ -370,4 +372,23 @@ export function parseTopology(source: string, networkOverride?: Network): Topolo
     topology.devnet = devnetConfig(networkParams);
   }
   return topology;
+}
+
+export async function loadTopology(
+  configPath?: string,
+  networkOverride?: Network,
+): Promise<Topology> {
+  if (configPath) {
+    return parseTopology(await readFile(configPath, "utf8"), networkOverride);
+  }
+  if (networkOverride && networkOverride !== "kurtosis") {
+    return parseTopology(
+      `network_params:\n  network: ${networkOverride}\nparticipants:\n  - el_type: geth\n    cl_type: lighthouse\n`,
+      networkOverride,
+    );
+  }
+  return parseTopology(
+    await readFile(new URL("../testnet.yaml", import.meta.url), "utf8"),
+    networkOverride,
+  );
 }
